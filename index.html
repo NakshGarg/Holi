@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Happy Holi!</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: "Poppins", sans-serif;
+        }
+        
+        /* Container */
+        .container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+        
+        /* Happy Holi Text */
+        .holi-text {
+            font-size: 5rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 
+                0 0 10px #FF1493, 
+                0 0 20px #FFD700, 
+                0 0 30px #FF4500;
+            animation: colorCycle 3s infinite;
+            text-align: center;
+            z-index: 2;
+            cursor: pointer;
+        }
+        
+        /* Color Animation */
+        @keyframes colorCycle {
+            0% { color: #FF1493; text-shadow: 0 0 20px #FFD700; }
+            25% { color: #FF6347; text-shadow: 0 0 20px #FF4500; }
+            50% { color: #FFD700; text-shadow: 0 0 20px #33FF57; }
+            75% { color: #33FF57; text-shadow: 0 0 20px #5733FF; }
+            100% { color: #FF1493; text-shadow: 0 0 20px #FFD700; }
+        }
+        
+        /* Fireworks Canvas */
+        #fireworks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="holi-text" onclick="burst(window.innerWidth / 2, window.innerHeight / 2)">Happy Holi!</h1>
+    </div>
+    <canvas id="fireworks"></canvas>
+
+    <script>
+        // Fireworks Setup
+        const canvas = document.getElementById("fireworks");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const colors = ["#FF5733", "#33FF57", "#5733FF", "#FFD700", "#FF1493", "#00FFFF"];
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function createParticle(x, y, color) {
+            return {
+                x: x,
+                y: y,
+                color: color,
+                radius: randomInt(2, 6),
+                speedX: (Math.random() - 0.5) * 10,
+                speedY: (Math.random() - 0.5) * 10,
+                alpha: 1,
+                fade: Math.random() * 0.03 + 0.01
+            };
+        }
+
+        let particles = [];
+
+        function burst(x, y) {
+            const color = colors[randomInt(0, colors.length - 1)];
+            for (let i = 0; i < 100; i++) {
+                particles.push(createParticle(x, y, color));
+            }
+        }
+
+        // Random bursts every 300ms
+        setInterval(() => {
+            burst(randomInt(0, canvas.width), randomInt(0, canvas.height));
+        }, 300);
+
+        // Animation Loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            particles.forEach((particle, i) => {
+                particle.x += particle.speedX;
+                particle.y += particle.speedY;
+                particle.alpha -= particle.fade;
+
+                ctx.globalAlpha = particle.alpha;
+                ctx.fillStyle = particle.color;
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+
+                if (particle.alpha <= 0) particles.splice(i, 1);
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
